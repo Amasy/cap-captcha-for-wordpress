@@ -100,6 +100,8 @@ Rename or delete `wp-content/plugins/cap-captcha` over FTP or SSH to deactivate 
 
 ## Credits
 
+This plugin is developed by [Evans](https://zenevan.co.ke).
+
 Cap is created by [tiago.zip](https://tiago.zip) and is available at [tiagozip/cap](https://github.com/tiagozip/cap). This plugin is an independent integration and is not affiliated with the Cap project.
 
 ## License

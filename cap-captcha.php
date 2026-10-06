@@ -6,7 +6,8 @@
  * Version:           1.0.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            Cap CAPTCHA for WordPress
+ * Author:            Evans
+ * Author URI:        https://zenevan.co.ke
  * License:           Apache-2.0
  * License URI:       https://www.apache.org/licenses/LICENSE-2.0
  * Text Domain:       cap-captcha
