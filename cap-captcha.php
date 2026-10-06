@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Cap CAPTCHA
  * Plugin URI:        https://trycap.dev/guide/
- * Description:       Protect WordPress login, registration, password reset, comments and WooCommerce forms with Cap, the self-hosted proof-of-work CAPTCHA.
- * Version:           1.0.0
+ * Description:       Protect WordPress login, registration, password reset, comments, WooCommerce, Contact Form 7 and Gravity Forms with Cap, the self-hosted proof-of-work CAPTCHA.
+ * Version:           1.1.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Evans
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CAP_CAPTCHA_VERSION', '1.0.0' );
+define( 'CAP_CAPTCHA_VERSION', '1.1.0' );
 define( 'CAP_CAPTCHA_WIDGET_VERSION', '0.1.58' );
 define( 'CAP_CAPTCHA_OPTION', 'cap_captcha_options' );
 define( 'CAP_CAPTCHA_FILE', __FILE__ );
@@ -89,7 +89,14 @@ function cap_captcha_is_configured() {
  * @return bool
  */
 function cap_captcha_form_enabled( $form ) {
-	$enabled = cap_captcha_is_configured() && in_array( $form, (array) cap_captcha_option( 'forms' ), true );
+	$enabled = cap_captcha_is_configured();
+
+	// Forms with a settings checkbox follow it. Others (Contact Form 7, Gravity
+	// Forms) are opted in per form by adding the Cap tag or field.
+	if ( $enabled && array_key_exists( $form, Cap_Captcha_Integrations::forms() ) ) {
+		$enabled = in_array( $form, (array) cap_captcha_option( 'forms' ), true );
+	}
+
 	return (bool) apply_filters( 'cap_captcha_form_enabled', $enabled, $form );
 }
 

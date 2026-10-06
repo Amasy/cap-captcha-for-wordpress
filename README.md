@@ -1,6 +1,6 @@
 # Cap CAPTCHA for WordPress
 
-Protect WordPress and WooCommerce forms with [Cap](https://trycap.dev), the self-hosted, privacy-first proof-of-work CAPTCHA.
+Protect WordPress, WooCommerce, Contact Form 7 and Gravity Forms with [Cap](https://trycap.dev), the self-hosted, privacy-first proof-of-work CAPTCHA.
 
 Visitors click one checkbox. Their browser solves a small proof-of-work challenge, and your own Cap server checks the result. There are no image puzzles, no cookies and no third-party tracking.
 
@@ -13,6 +13,8 @@ Visitors click one checkbox. Their browser solves a small proof-of-work challeng
   - Comments
   - WooCommerce My Account login and registration
   - WooCommerce classic checkout
+  - Contact Form 7, via a `[cap_captcha]` form-tag
+  - Gravity Forms, via a **Cap CAPTCHA** field
 - **Server-side verification** of every submission against your Cap server's `/siteverify` endpoint.
 - **Built-in setup test** on the settings page: solve a live widget and confirm your server accepts the token.
 - **Custom forms** via the `[cap_captcha]` shortcode or PHP helpers.
@@ -37,13 +39,30 @@ Visitors click one checkbox. Their browser solves a small proof-of-work challeng
    - clone this repository into `wp-content/plugins/cap-captcha`.
 4. **Configure it.** Go to **Settings → Cap CAPTCHA** and enter your instance URL, site key and secret key.
 5. **Test it.** Use the **Test your setup** box at the bottom of the settings page.
-6. **Choose your forms.** Tick the forms you want protected and save.
+6. **Choose your forms.** Tick the WordPress and WooCommerce forms you want protected and save. Contact Form 7 and Gravity Forms are switched on per form, as described below.
 
 > **Tip:** keep the secret key out of the database by adding it to `wp-config.php`:
 >
 > ```php
 > define( 'CAP_CAPTCHA_SECRET_KEY', 'your-secret-key' );
 > ```
+
+## Contact Form 7
+
+Add the tag to any form, either by typing it or with the **Cap CAPTCHA** button in the form editor:
+
+```text
+[cap_captcha]
+[submit "Send"]
+```
+
+Only forms that contain the tag are checked. Errors appear next to the widget like any other field error. The token is only checked once every other field is valid, so visitors who mistype an email address don't have to solve the CAPTCHA again. After an AJAX submission, the widget resets itself for the next message.
+
+## Gravity Forms
+
+In the form editor, open **Advanced Fields** and add **Cap CAPTCHA**. Only forms that contain the field are checked. You can change the field's label, description and error message as usual.
+
+On multi-page forms, put the field on the **last page**. It is checked on the final submission only, never on **Next**, **Previous** or **Save and Continue**.
 
 ## Protecting your own forms
 
@@ -80,6 +99,7 @@ Tokens are single-use. The plugin caches each result for the rest of the request
 | `cap_captcha_verify_result( $result, $token )` | Adjust the verification outcome |
 | `cap_captcha_error_message( $message, $type )` | Change error text (`missing`, `invalid`, `unavailable`) |
 | `cap_captcha_script_url( $url )` | Change where the widget script loads from |
+| `cap_captcha_integrations( $list )` | Register your own integration (a `Cap_Captcha_Integration` subclass) |
 | `cap_captcha_forms( $forms )` | Add entries to the settings checklist |
 
 ## Troubleshooting
@@ -96,6 +116,7 @@ Rename or delete `wp-content/plugins/cap-captcha` over FTP or SSH to deactivate 
 ## Limitations
 
 - The WooCommerce **block** checkout is not supported yet. The classic (shortcode) checkout is.
+- Gravity Forms support is built on Gravity Forms' documented field and validation API. Please [open an issue](../../issues) if you run into a problem with a particular Gravity Forms version or add-on.
 - The plugin pins `cap-widget` **0.1.58**. You can point it at a newer build with the self-hosting settings or the `cap_captcha_script_url` filter.
 
 ## Credits

@@ -60,11 +60,42 @@ class Cap_Captcha_Widget {
 			wp_add_inline_script( self::HANDLE, implode( '', $globals ), 'before' );
 		}
 
-		// Reset the widget after a failed WooCommerce AJAX checkout, since the token was consumed.
-		wp_add_inline_script(
-			self::HANDLE,
-			'(function(){if(!window.jQuery)return;jQuery(document.body).on("checkout_error",function(){document.querySelectorAll("cap-widget").forEach(function(w){if(typeof w.reset==="function"){w.reset();}else{var c=w.cloneNode(false);w.parentNode.replaceChild(c,w);}});});})();'
-		);
+		// Tokens are single-use: reset the widget after AJAX submissions that
+		// stay on the page (WooCommerce checkout errors, Contact Form 7).
+		wp_add_inline_script( self::HANDLE, self::reset_script() );
+	}
+
+	/**
+	 * Inline JS that resets widgets after AJAX submissions.
+	 *
+	 * Contact Form 7: if the submission failed only on other fields, the token
+	 * was never sent to Cap, so the solved widget is kept.
+	 *
+	 * @return string
+	 */
+	private static function reset_script() {
+		return <<<'JS'
+(function () {
+	function resetIn(scope) {
+		(scope || document).querySelectorAll('cap-widget').forEach(function (w) {
+			if (typeof w.reset === 'function') { w.reset(); }
+		});
+	}
+	if (window.jQuery) {
+		jQuery(document.body).on('checkout_error', function () { resetIn(document.querySelector('form.checkout')); });
+	}
+	document.addEventListener('wpcf7submit', function (e) {
+		var d = e.detail || {}, res = d.apiResponse || {};
+		if (d.status === 'validation_failed') {
+			var capFailed = (res.invalid_fields || []).some(function (f) {
+				return f.field === 'cap-captcha';
+			});
+			if (!capFailed) { return; }
+		}
+		resetIn(e.target);
+	});
+})();
+JS;
 	}
 
 	/**

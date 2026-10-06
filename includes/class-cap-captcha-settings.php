@@ -151,24 +151,45 @@ class Cap_Captcha_Settings {
 
 				<h2><?php esc_html_e( 'Protected forms', 'cap-captcha' ); ?></h2>
 				<table class="form-table" role="presentation">
+					<?php
+					$help_html = array(
+						'code'   => array(),
+						'strong' => array(),
+						'em'     => array(),
+						'a'      => array( 'href' => array() ),
+					);
+					foreach ( Cap_Captcha_Integrations::all() as $integration ) :
+						$active = $integration->is_available();
+						$forms  = $integration->forms();
+						?>
+						<tr>
+							<th scope="row">
+								<?php echo esc_html( $integration->name() ); ?>
+								<?php if ( ! $active ) : ?>
+									<br /><em style="font-weight:normal;"><?php esc_html_e( 'Not active', 'cap-captcha' ); ?></em>
+								<?php endif; ?>
+							</th>
+							<td<?php echo $active ? '' : ' style="opacity:.6;"'; ?>>
+								<?php if ( $forms ) : ?>
+									<fieldset>
+										<legend class="screen-reader-text"><?php echo esc_html( $integration->name() ); ?></legend>
+										<?php foreach ( $forms as $slug => $label ) : ?>
+											<label style="display:block;margin-bottom:6px;">
+												<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[forms][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, (array) $o['forms'], true ) ); ?> />
+												<?php echo esc_html( $label ); ?>
+											</label>
+										<?php endforeach; ?>
+									</fieldset>
+								<?php endif; ?>
+								<?php if ( $integration->help() ) : ?>
+									<p class="description"><?php echo wp_kses( $integration->help(), $help_html ); ?></p>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Forms', 'cap-captcha' ); ?></th>
-						<td>
-							<fieldset>
-							<?php
-							$wc = class_exists( 'WooCommerce' );
-							foreach ( Cap_Captcha_Integrations::forms() as $slug => $label ) :
-								$is_wc = 0 === strpos( $slug, 'wc_' );
-								?>
-								<label style="display:block;margin-bottom:6px;<?php echo ( $is_wc && ! $wc ) ? 'opacity:.6;' : ''; ?>">
-									<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[forms][]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( in_array( $slug, (array) $o['forms'], true ) ); ?> />
-									<?php echo esc_html( $label ); ?>
-									<?php if ( $is_wc && ! $wc ) : ?><em>(<?php esc_html_e( 'WooCommerce not active', 'cap-captcha' ); ?>)</em><?php endif; ?>
-								</label>
-							<?php endforeach; ?>
-							</fieldset>
-							<p class="description"><?php esc_html_e( 'For any other form, use the [cap_captcha] shortcode or cap_captcha_widget() and check it with cap_captcha_verify(). WooCommerce block checkout is not supported yet.', 'cap-captcha' ); ?></p>
-						</td>
+						<th scope="row"><?php esc_html_e( 'Other forms', 'cap-captcha' ); ?></th>
+						<td><p class="description"><?php echo wp_kses( __( 'Place <code>[cap_captcha]</code> or <code>cap_captcha_widget()</code> inside the form, and check it with <code>cap_captcha_verify()</code> when handling the submission.', 'cap-captcha' ), $help_html ); ?></p></td>
 					</tr>
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Logged-in users', 'cap-captcha' ); ?></th>

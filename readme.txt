@@ -1,9 +1,9 @@
 === Cap CAPTCHA ===
-Tags: captcha, anti-spam, proof-of-work, privacy, woocommerce
+Tags: captcha, anti-spam, woocommerce, contact form 7, gravity forms
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -21,6 +21,8 @@ This plugin adds the Cap widget and server-side token verification to:
 * Comments
 * WooCommerce My Account login and registration
 * WooCommerce classic checkout
+* Contact Form 7 (add the [cap_captcha] form-tag)
+* Gravity Forms (add the Cap CAPTCHA field from Advanced Fields)
 
 Anything else can use the `[cap_captcha]` shortcode or the PHP helpers below.
 
@@ -38,6 +40,14 @@ Nothing is enforced until the instance URL, site key and secret key are all set,
 Tip: keep the secret out of the database by adding this to wp-config.php:
 
     define( 'CAP_CAPTCHA_SECRET_KEY', 'your-secret-key' );
+
+== Contact Form 7 ==
+
+Add [cap_captcha] to any form, or use the Cap CAPTCHA button in the form editor. Only forms that contain the tag are checked.
+
+== Gravity Forms ==
+
+Add the Cap CAPTCHA field from Advanced Fields. Only forms that contain the field are checked. On multi-page forms, put it on the last page.
 
 == Custom forms ==
 
@@ -65,6 +75,7 @@ Tokens are single-use. The plugin caches the result per request, so checking the
 * `cap_captcha_verify_result( $result, $token )` — adjust the verification outcome.
 * `cap_captcha_error_message( $message, $type )` — change user-facing errors (`missing`, `invalid`, `unavailable`).
 * `cap_captcha_script_url( $url )` — change where the widget script loads from.
+* `cap_captcha_integrations( $list )` — register your own integration (a Cap_Captcha_Integration subclass).
 * `cap_captcha_forms( $forms )` — add entries to the settings checklist (pair with your own render/verify hooks).
 
 == Frequently Asked Questions ==
@@ -86,6 +97,14 @@ No. The login check only applies to the interactive wp-login.php form.
 Not yet supported; the classic (shortcode) checkout is.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: Contact Form 7 support via a [cap_captcha] form-tag, with an editor button and inline errors.
+* New: Gravity Forms support via a Cap CAPTCHA field (Advanced Fields).
+* The token is only checked once other fields are valid, so it isn't wasted on submissions that fail anyway.
+* Settings page groups forms by plugin and shows which ones are active.
+* Integrations are now separate modules, and you can add your own with the cap_captcha_integrations filter.
+* Plugin author set to Evans (https://zenevan.co.ke).
 
 = 1.0.0 =
 * Initial release. Pins cap-widget 0.1.58.
